@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
+  <meta name="theme-color" content="#000000" />
+  <meta name="color-scheme" content="dark" />
+  <title>Star Party</title>
+  <link rel="manifest" href="manifest.webmanifest" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <!-- Brightness dimmer overlay (sits above everything, ignores taps) -->
+  <div id="dimmer" aria-hidden="true"></div>
+
+  <!-- ================= NOW VIEWING ================= -->
+  <section id="view-now" class="view active">
+    <div class="now-wrap" id="now-wrap">
+      <div id="now-name" class="now-name">—</div>
+    </div>
+
+    <div class="dim-control">
+      <span class="dim-icon">dim</span>
+      <input id="dim-slider" type="range" min="0" max="90" value="0" step="1" aria-label="Screen brightness dimmer" />
+    </div>
+  </section>
+
+  <!-- ================= LIBRARY ================= -->
+  <section id="view-library" class="view">
+    <header class="topbar">
+      <h1>Object Library</h1>
+      <button id="add-object-btn" class="btn small">+ Add</button>
+    </header>
+    <div id="object-list" class="list"></div>
+    <p id="library-empty" class="empty">No objects yet. Tap <b>+ Add</b> to research tonight's targets.</p>
+  </section>
+
+  <!-- Object detail (read view) -->
+  <section id="view-detail" class="view">
+    <header class="topbar">
+      <button class="btn back" data-back="library">‹ Back</button>
+      <button id="detail-edit-btn" class="btn small ghost">Edit</button>
+    </header>
+    <div id="detail-body" class="detail"></div>
+    <div class="detail-actions">
+      <button id="detail-setnow-btn" class="btn big">Set as “Now Viewing”</button>
+    </div>
+  </section>
+
+  <!-- Object edit form -->
+  <section id="view-edit" class="view">
+    <header class="topbar">
+      <button class="btn back" data-back="library">‹ Cancel</button>
+      <button id="edit-save-btn" class="btn small">Save</button>
+    </header>
+    <form id="object-form" class="form" autocomplete="off">
+      <input type="hidden" id="f-id" />
+      <label>Name<input id="f-name" type="text" placeholder="e.g. Orion Nebula (M42)" required /></label>
+      <div class="row">
+        <label>Type<input id="f-type" type="text" placeholder="Nebula, Galaxy, Planet…" /></label>
+        <label>Constellation<input id="f-constellation" type="text" placeholder="Orion" /></label>
+      </div>
+      <div class="row">
+        <label>Magnitude<input id="f-magnitude" type="text" placeholder="4.0" /></label>
+        <label>Distance<input id="f-distance" type="text" placeholder="1,344 ly" /></label>
+      </div>
+      <label>What to look for in the eyepiece
+        <textarea id="f-eyepiece" rows="3" placeholder="Use low power; look for the wispy gray cloud and the 4 Trapezium stars…"></textarea>
+      </label>
+      <label>Talking points / fun facts
+        <textarea id="f-talking" rows="6" placeholder="Stellar nursery 24 light-years across; visible to naked eye…"></textarea>
+      </label>
+      <button type="button" id="edit-delete-btn" class="btn danger" hidden>Delete object</button>
+    </form>
+  </section>
+
+  <!-- ================= PHOTOS ================= -->
+  <section id="view-photos" class="view">
+    <header class="topbar">
+      <h1>Sky Photos</h1>
+      <label class="btn small" for="photo-input">+ Photo</label>
+      <input id="photo-input" type="file" accept="image/*" capture="environment" hidden />
+    </header>
+    <div id="photo-grid" class="grid"></div>
+    <p id="photos-empty" class="empty">No photos yet. Tap <b>+ Photo</b> to add a sky shot you can annotate.</p>
+  </section>
+
+  <!-- Photo annotation editor -->
+  <section id="view-photoedit" class="view">
+    <header class="topbar">
+      <button class="btn back" data-back="photos">‹ Back</button>
+      <button id="photo-delete-btn" class="btn small danger">Delete</button>
+    </header>
+    <div class="photo-tools">
+      <label class="photo-name-wrap">Title
+        <input id="photo-title" type="text" placeholder="e.g. Summer Triangle" />
+      </label>
+      <label class="photo-link-wrap">Linked object
+        <select id="photo-link"></select>
+      </label>
+    </div>
+    <div id="photo-stage" class="photo-stage">
+      <img id="photo-img" alt="sky photo" />
+      <div id="marker-layer" class="marker-layer"></div>
+    </div>
+    <p class="hint">Tap the photo to drop a labeled pointer. Tap a pointer to rename or remove it.</p>
+  </section>
+
+  <!-- Inline label prompt (night-mode safe; replaces native prompt) -->
+  <div id="label-modal" class="modal" hidden>
+    <div class="modal-card">
+      <div id="label-modal-title" class="modal-title">Label this point</div>
+      <input id="label-input" type="text" placeholder="e.g. Vega" />
+      <div class="modal-btns">
+        <button id="label-remove" class="btn danger small" hidden>Remove</button>
+        <button id="label-cancel" class="btn ghost small">Cancel</button>
+        <button id="label-ok" class="btn small">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ================= TAB BAR ================= -->
+  <nav id="tabs" class="tabs">
+    <button class="tab active" data-view="now">Now</button>
+    <button class="tab" data-view="library">Library</button>
+    <button class="tab" data-view="photos">Photos</button>
+  </nav>
+
+  <script src="app.js"></script>
+</body>
+</html>
