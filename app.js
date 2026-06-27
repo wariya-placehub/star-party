@@ -92,9 +92,17 @@
 
   async function renderNow() {
     const obj = state.objects.find((o) => o.id === state.activeId);
-    const nameEl = $('#now-name'), wrap = $('#now-wrap');
+    const nameEl = $('#now-name'), wrap = $('#now-wrap'), pbtn = $('#now-photos');
     nameEl.textContent = obj ? obj.name : '—';
     wrap.onclick = obj ? () => openDetail(obj.id) : () => show('library');
+    const linked = obj ? state.photos.filter((p) => p.objectId === obj.id) : [];
+    if (linked.length) {
+      pbtn.hidden = false;
+      pbtn.textContent = '📷 ' + linked.length + (linked.length > 1 ? ' photos' : ' photo');
+      pbtn.onclick = () => openGallery(obj.id, null, 'now');
+    } else {
+      pbtn.hidden = true;
+    }
     fitNowName();
   }
 
@@ -169,7 +177,7 @@
       const thumbs = el('div', { className: 'photo-thumbs' });
       for (const p of linked) {
         const img = el('img', { src: URL.createObjectURL(p.blob) });
-        img.onclick = () => openPhotoEditor(p.id);
+        img.onclick = () => openGallery(o.id, p.id, 'detail');
         thumbs.append(img);
       }
       wrap.append(thumbs);
@@ -315,19 +323,20 @@
     show('photoedit');
   }
 
-  function renderMarkers() {
-    const layer = $('#marker-layer');
+  // Shared marker painter (editable in the editor, read-only in the gallery).
+  function paintMarkers(layer, markers, onClick) {
     layer.innerHTML = '';
-    currentPhoto.markers.forEach((m, i) => {
+    (markers || []).forEach((m, i) => {
       const node = el('div', { className: 'marker' });
       node.style.left = (m.x * 100) + '%';
       node.style.top = (m.y * 100) + '%';
       node.append(el('div', { className: 'dot' }));
       if (m.label) node.append(el('div', { className: 'mlabel', textContent: m.label }));
-      node.onclick = (ev) => { ev.stopPropagation(); editMarker(i); };
+      if (onClick) node.onclick = (ev) => { ev.stopPropagation(); onClick(i); };
       layer.append(node);
     });
   }
+  function renderMarkers() { paintMarkers($('#marker-layer'), currentPhoto.markers, editMarker); }
 
   $('#photo-stage').addEventListener('click', (e) => {
     if (e.target.closest('.marker')) return;
@@ -372,6 +381,63 @@
     show('photos');
   };
 
+  // ---------- photo gallery (swipeable viewer for an object's photos) ----------
+  let gallery = { photos: [], idx: 0, origin: 'now' };
+  let gvURL = null;
+
+  function openGallery(objectId, startPhotoId, origin) {
+    const photos = state.photos.filter((p) => p.objectId === objectId).sort((a, b) => a.createdAt - b.createdAt);
+    if (!photos.length) return;
+    gallery.photos = photos;
+    gallery.idx = startPhotoId ? Math.max(0, photos.findIndex((p) => p.id === startPhotoId)) : 0;
+    gallery.origin = origin || 'now';
+    renderGallery();
+    show('photoview');
+  }
+
+  function renderGallery() {
+    const p = gallery.photos[gallery.idx];
+    if (!p) return;
+    if (gvURL) URL.revokeObjectURL(gvURL);
+    gvURL = URL.createObjectURL(p.blob);
+    const img = $('#gv-img');
+    const paint = () => paintMarkers($('#gv-markers'), p.markers);
+    img.onload = paint;
+    img.src = gvURL;
+    paint();
+    $('#gv-title').textContent = p.title || 'Untitled';
+    $('#gv-counter').textContent = (gallery.idx + 1) + ' / ' + gallery.photos.length;
+    const dots = $('#gv-dots');
+    dots.innerHTML = '';
+    gallery.photos.forEach((_, i) => dots.append(el('span', { className: 'gv-dot' + (i === gallery.idx ? ' on' : '') })));
+    const multi = gallery.photos.length > 1;
+    $('#gv-prev').hidden = !multi;
+    $('#gv-next').hidden = !multi;
+  }
+
+  function galleryGo(delta) {
+    const n = gallery.photos.length;
+    if (n < 2) return;
+    gallery.idx = (gallery.idx + delta + n) % n;
+    renderGallery();
+  }
+
+  $('#gv-prev').onclick = () => galleryGo(-1);
+  $('#gv-next').onclick = () => galleryGo(1);
+  $('#gv-back').onclick = () => show(gallery.origin);
+  $('#gv-edit').onclick = () => { const p = gallery.photos[gallery.idx]; if (p) openPhotoEditor(p.id); };
+  (function () {
+    let x0 = null;
+    const st = $('#gv-stage');
+    st.addEventListener('touchstart', (e) => { x0 = e.touches[0].clientX; }, { passive: true });
+    st.addEventListener('touchend', (e) => {
+      if (x0 == null) return;
+      const dx = e.changedTouches[0].clientX - x0;
+      if (Math.abs(dx) > 40) galleryGo(dx < 0 ? 1 : -1);
+      x0 = null;
+    });
+  })();
+
   // ---------- label modal ----------
   let labelCb = null;
   function promptLabel({ title, value, allowRemove }, cb) {
@@ -391,7 +457,7 @@
 
   // ---------- data loading ----------
   async function reloadObjects() { state.objects = await getAll('objects'); renderLibrary(); buildLinkOptionsSafe(); }
-  async function reloadPhotos() { state.photos = await getAll('photos'); renderPhotos(); }
+  async function reloadPhotos() { state.photos = await getAll('photos'); renderPhotos(); renderNow(); }
   function buildLinkOptionsSafe() { if (currentPhoto) buildLinkOptions(currentPhoto.objectId || ''); }
 
   // ---------- integration API for the Tonight recommender (tonight.js) ----------

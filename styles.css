@@ -184,6 +184,25 @@ textarea { resize: vertical; }
 .tn-actions { display: flex; gap: 8px; margin-top: 4px; }
 .tn-washed { color: var(--red-dim); font-size: 0.85rem; font-style: italic; margin-top: 14px; }
 
+/* ===== Now-screen photo button ===== */
+.now-photos { align-self: center; margin: 0 auto 10px; min-height: 44px; }
+
+/* ===== Photo gallery (swipeable viewer) ===== */
+#view-photoview { display: none; flex-direction: column; }
+#view-photoview.active { display: flex; }
+.gv-title { flex: 1; text-align: center; font-weight: 600; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.gv-stage { flex: 1; position: relative; display: flex; align-items: center; justify-content: center; min-height: 0; touch-action: pan-y; }
+.gv-imgwrap { position: relative; display: inline-block; max-width: 100%; max-height: 100%; }
+#gv-img { display: block; max-width: 100%; max-height: 100%; filter: brightness(0.8); }
+.gv-arrow { position: absolute; top: 50%; transform: translateY(-50%); z-index: 5; background: rgba(0,0,0,0.45); color: var(--red); border: none; font-size: 2.2rem; line-height: 1; width: 48px; height: 72px; cursor: pointer; }
+.gv-prev { left: 0; border-radius: 0 10px 10px 0; }
+.gv-next { right: 0; border-radius: 10px 0 0 10px; }
+.gv-foot { display: flex; flex-direction: column; align-items: center; gap: 8px; padding: 10px 0 4px; }
+.gv-counter { color: var(--red-dim); font-size: 0.9rem; }
+.gv-dots { display: flex; gap: 7px; }
+.gv-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--red-faint); }
+.gv-dot.on { background: var(--red-bright); }
+
 /* ===== Tabs ===== */
 .tabs {
   position: fixed; left: 0; right: 0; bottom: 0;

@@ -21,6 +21,8 @@
       <div id="now-name" class="now-name">—</div>
     </div>
 
+    <button id="now-photos" class="btn ghost now-photos" hidden></button>
+
     <div class="dim-control">
       <span class="dim-icon">dim</span>
       <input id="dim-slider" type="range" min="0" max="90" value="0" step="1" aria-label="Screen brightness dimmer" />
@@ -127,6 +129,27 @@
       <div id="marker-layer" class="marker-layer"></div>
     </div>
     <p class="hint">Tap the photo to drop a labeled pointer. Tap a pointer to rename or remove it.</p>
+  </section>
+
+  <!-- Photo gallery (swipeable viewer) -->
+  <section id="view-photoview" class="view">
+    <header class="topbar">
+      <button class="btn back" id="gv-back">‹ Back</button>
+      <span id="gv-title" class="gv-title"></span>
+      <button class="btn small ghost" id="gv-edit">Edit</button>
+    </header>
+    <div class="gv-stage" id="gv-stage">
+      <button class="gv-arrow gv-prev" id="gv-prev" type="button" aria-label="Previous">‹</button>
+      <div class="gv-imgwrap">
+        <img id="gv-img" alt="" />
+        <div id="gv-markers" class="marker-layer"></div>
+      </div>
+      <button class="gv-arrow gv-next" id="gv-next" type="button" aria-label="Next">›</button>
+    </div>
+    <div class="gv-foot">
+      <div id="gv-counter" class="gv-counter"></div>
+      <div id="gv-dots" class="gv-dots"></div>
+    </div>
   </section>
 
   <!-- Inline label prompt (night-mode safe; replaces native prompt) -->
