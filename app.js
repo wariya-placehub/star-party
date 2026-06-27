@@ -286,14 +286,24 @@
   }
 
   $('#photo-input').addEventListener('change', async (e) => {
-    const file = e.target.files?.[0];
+    const files = Array.from(e.target.files || []);
     e.target.value = '';
-    if (!file) return;
-    const blob = await fileToBlob(file);
-    const photo = { id: uid(), title: '', objectId: '', blob, markers: [], createdAt: Date.now() };
-    await put('photos', photo);
+    if (!files.length) return;
+    let firstId = null;
+    for (const file of files) {
+      try {
+        const blob = await fileToBlob(file);
+        const photo = { id: uid(), title: '', objectId: '', blob, markers: [], createdAt: Date.now() };
+        await put('photos', photo);
+        if (!firstId) firstId = photo.id;
+      } catch (err) {
+        alert('Could not load "' + (file.name || 'image') + '": ' + err.message);
+      }
+    }
     await reloadPhotos();
-    openPhotoEditor(photo.id);
+    // One photo → jump straight to annotating it; several → show the grid.
+    if (files.length === 1 && firstId) openPhotoEditor(firstId);
+    else show('photos');
   });
 
   // ---------- PHOTO EDITOR ----------

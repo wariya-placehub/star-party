@@ -1,5 +1,5 @@
 /* Star Party service worker — offline app shell */
-const CACHE = 'starparty-v5';
+const CACHE = 'starparty-v6';
 const SHELL = [
   '.',
   'index.html',
