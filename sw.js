@@ -1,5 +1,8 @@
-/* Star Party service worker — offline app shell */
-const CACHE = 'starparty-v6';
+/* Star Party service worker — network-first for the app shell.
+   When online, always fetch the latest files (so updates appear on reopen);
+   fall back to cache only when offline. This avoids "stuck on an old version".
+*/
+const CACHE = 'starparty-v7';
 const SHELL = [
   '.',
   'index.html',
@@ -13,24 +16,43 @@ const SHELL = [
 ];
 
 self.addEventListener('install', (e) => {
-  e.waitUntil(caches.open(CACHE).then((c) => c.addAll(SHELL)).then(() => self.skipWaiting()));
+  // Precache resiliently (one bad file won't block the whole update) and
+  // bypass the HTTP cache so we store genuinely fresh copies.
+  e.waitUntil((async () => {
+    const cache = await caches.open(CACHE);
+    await Promise.allSettled(SHELL.map((u) => cache.add(new Request(u, { cache: 'reload' }))));
+    await self.skipWaiting();
+  })());
 });
 
 self.addEventListener('activate', (e) => {
-  e.waitUntil(
-    caches.keys().then((keys) => Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k))))
-      .then(() => self.clients.claim())
-  );
+  e.waitUntil((async () => {
+    const keys = await caches.keys();
+    await Promise.all(keys.filter((k) => k !== CACHE).map((k) => caches.delete(k)));
+    await self.clients.claim();
+  })());
 });
 
 self.addEventListener('fetch', (e) => {
-  if (e.request.method !== 'GET') return;
-  // Cache-first for the app shell; fall back to network and cache new GETs.
-  e.respondWith(
-    caches.match(e.request).then((hit) => hit || fetch(e.request).then((res) => {
-      const copy = res.clone();
-      caches.open(CACHE).then((c) => c.put(e.request, copy)).catch(() => {});
-      return res;
-    }).catch(() => hit))
-  );
+  const req = e.request;
+  if (req.method !== 'GET') return;
+  const sameOrigin = new URL(req.url).origin === self.location.origin;
+
+  if (sameOrigin) {
+    // Network-first: latest when online, cached fallback when offline.
+    e.respondWith((async () => {
+      try {
+        const res = await fetch(req);
+        const cache = await caches.open(CACHE);
+        cache.put(req, res.clone());
+        return res;
+      } catch (err) {
+        const hit = await caches.match(req);
+        return hit || caches.match('index.html');
+      }
+    })());
+  } else {
+    // Third-party (e.g. map lookups): cache-first, then network.
+    e.respondWith(caches.match(req).then((hit) => hit || fetch(req)));
+  }
 });
