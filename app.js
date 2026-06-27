@@ -394,6 +394,28 @@
   async function reloadPhotos() { state.photos = await getAll('photos'); renderPhotos(); }
   function buildLinkOptionsSafe() { if (currentPhoto) buildLinkOptions(currentPhoto.objectId || ''); }
 
+  // ---------- integration API for the Tonight recommender (tonight.js) ----------
+  async function addCatalogToLibrary(c) {
+    const existing = state.objects.find((o) => o.name === c.name);
+    if (existing) return existing.id;
+    const obj = {
+      id: uid(), name: c.name,
+      type: c.type || '', constellation: c.constellation || '',
+      magnitude: (c.mag != null ? String(c.mag) : ''), distance: '',
+      eyepiece: c.look || '', talking: c.facts || '', createdAt: Date.now(),
+    };
+    await put('objects', obj);
+    await reloadObjects();
+    return obj.id;
+  }
+  async function setActive(id) {
+    state.activeId = id;
+    await setSetting('activeId', id);
+    await renderNow();
+    renderLibrary();
+  }
+  window.SP = { ready: false, getSetting, setSetting, addCatalogToLibrary, setActive };
+
   // ---------- boot ----------
   async function boot() {
     _db = await openDB();
@@ -408,6 +430,9 @@
     renderPhotos();
     await renderNow();
     show('now');
+
+    window.SP.ready = true;
+    window.dispatchEvent(new Event('sp-ready'));
 
     if ('serviceWorker' in navigator) {
       navigator.serviceWorker.register('sw.js').catch(() => {});

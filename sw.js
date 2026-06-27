@@ -1,10 +1,13 @@
 /* Star Party service worker — offline app shell */
-const CACHE = 'starparty-v3';
+const CACHE = 'starparty-v4';
 const SHELL = [
   '.',
   'index.html',
   'styles.css',
   'app.js',
+  'catalog.js',
+  'tonight.js',
+  'vendor/astronomy.browser.min.js',
   'manifest.webmanifest',
   'icon.svg',
 ];

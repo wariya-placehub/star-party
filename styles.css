@@ -157,6 +157,33 @@ textarea { resize: vertical; }
 .marker .mlabel { margin-top: 4px; background: rgba(0,0,0,0.7); color: var(--red-bright); font-size: 0.85rem; font-weight: 700; padding: 1px 6px; border-radius: 6px; white-space: nowrap; }
 .hint { color: var(--red-dim); font-size: 0.9rem; text-align: center; margin-top: 10px; }
 
+/* ===== Tonight (recommendations) ===== */
+.tonight-controls { display: flex; flex-direction: column; gap: 14px; margin-bottom: 16px; }
+.loc-row { display: flex; gap: 8px; }
+.loc-row input { flex: 1; }
+.loc-favs { display: flex; flex-wrap: wrap; gap: 8px; }
+.fav-chip { background: var(--red-faint); color: var(--red); border: 1px solid var(--red-dim); border-radius: 999px; padding: 6px 12px; font-size: 0.85rem; display: inline-flex; align-items: center; gap: 6px; cursor: pointer; min-height: 36px; }
+.fav-x { color: var(--red-bright); font-weight: 700; padding: 0 2px; }
+.tn-status { color: var(--red-dim); font-size: 0.9rem; min-height: 1.2em; }
+.tn-status.err { color: var(--red-bright); }
+
+.tn-summary { margin-bottom: 14px; }
+.tn-summary > div { font-size: 0.95rem; }
+.tn-loc { color: var(--red); font-weight: 600; }
+.tn-when, .tn-moon { color: var(--red-dim); }
+
+.tn-card { border: 1px solid var(--red-faint); border-radius: 12px; padding: 14px 16px; display: flex; flex-direction: column; gap: 6px; }
+.tn-card.q-great { border-color: var(--red-bright); }
+.tn-card.q-low { opacity: 0.85; }
+.tn-head { display: flex; justify-content: space-between; align-items: baseline; gap: 10px; }
+.tn-name { font-size: 1.2rem; font-weight: 700; }
+.tn-pos { color: var(--red-bright); font-size: 0.95rem; white-space: nowrap; }
+.tn-meta { color: var(--red-dim); font-size: 0.85rem; }
+.tn-tag { color: var(--red-bright); font-size: 0.85rem; }
+.tn-look { font-size: 0.95rem; }
+.tn-actions { display: flex; gap: 8px; margin-top: 4px; }
+.tn-washed { color: var(--red-dim); font-size: 0.85rem; font-style: italic; margin-top: 14px; }
+
 /* ===== Tabs ===== */
 .tabs {
   position: fixed; left: 0; right: 0; bottom: 0;

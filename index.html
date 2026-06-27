@@ -27,6 +27,27 @@
     </div>
   </section>
 
+  <!-- ================= TONIGHT (recommendations) ================= -->
+  <section id="view-tonight" class="view">
+    <header class="topbar"><h1>Tonight</h1></header>
+    <div class="tonight-controls">
+      <label>Location
+        <div class="loc-row">
+          <input id="loc-input" type="text" placeholder="Place name, or  lat, long" />
+          <button id="loc-gps" class="btn small ghost" type="button">GPS</button>
+          <button id="loc-save" class="btn small ghost" type="button">★</button>
+        </div>
+      </label>
+      <div id="loc-favs" class="loc-favs"></div>
+      <label>Date<input id="tn-date" type="date" /></label>
+      <button id="tn-go" class="btn big" type="button">Find objects</button>
+      <div id="tn-status" class="tn-status"></div>
+    </div>
+    <div id="tn-summary" class="tn-summary"></div>
+    <div id="tn-results" class="list"></div>
+    <p id="tn-washed" class="tn-washed"></p>
+  </section>
+
   <!-- ================= LIBRARY ================= -->
   <section id="view-library" class="view">
     <header class="topbar">
@@ -124,10 +145,14 @@
   <!-- ================= TAB BAR ================= -->
   <nav id="tabs" class="tabs">
     <button class="tab active" data-view="now">Now</button>
+    <button class="tab" data-view="tonight">Tonight</button>
     <button class="tab" data-view="library">Library</button>
     <button class="tab" data-view="photos">Photos</button>
   </nav>
 
+  <script src="vendor/astronomy.browser.min.js"></script>
+  <script src="catalog.js"></script>
   <script src="app.js"></script>
+  <script src="tonight.js"></script>
 </body>
 </html>
